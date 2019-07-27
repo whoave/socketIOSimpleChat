@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <style>
+      ul {
+        list-style: none;
+      }
+      ul li:nth-child(2n) {
+        background: rgb(231, 231, 231);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-3">
+          <div id="online_sayisi"></div>
+        </div>
+        <div class="col-9" style="height:400px;position:relative !important;">
+          <ul
+            id="messages"
+            style="height:300px;overflow:auto;padding:0;margin:0;"
+          ></ul>
+
+          <form
+            class="form-group"
+            style="position:absolute;bottom:0px;"
+            action=""
+            autocomplete="off"
+          >
+            <input
+              type="text"
+              class="form-control w-100 p-3"
+              id="m"
+              style="width:830px !important;"
+            /><button class="btn btn-success">
+              Gönder
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Aşağısı socket -->
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(function() {
+        var socket = io();
+
+        $("form").submit(e => {
+          e.preventDefault();
+          $("#messages").append(`
+            <li><b style='color:red;'>Ben:</b> ${$("#m").val()}</li>
+            `);
+          let msg = $("#m").val();
+          if (msg.startsWith("@")) {
+            let newmsg = msg.split(";");
+            socket.emit("ozelmesaj", {
+              msg: newmsg[1],
+              senderUser: nickim,
+              gidenKullanici: newmsg[0]
+            });
+          } else
+            socket.emit("mesaj", { msg: $("#m").val(), senderUser: nickim });
+          $("#m").val("");
+          return false;
+        });
+
+        var nickim;
+        socket.on("senkimsin", kimim => {
+          nickim = kimim;
+        });
+
+        socket.on("yeni mesaj", data => {
+          if (data.senderUser != nickim) {
+            $("#messages").append(`
+            <li>${data.msg}</li>
+            `);
+          }
+        });
+
+        socket.on("baglanti", data => {
+          var uyelistesi = "";
+          data.nicks.forEach(element => {
+            uyelistesi += `<span class="badge badge-info">${element}</span><br>`;
+          });
+          $("#online_sayisi").html(
+            `<br><button type="button" class="btn btn-danger">
+            Müsait: <span class="badge badge-light">${data.onlines}</span>
+            </button><br><b>Müsait üyeler:</b><br>` + uyelistesi
+          );
+          $("#messages").append(`
+            <li><b>${data.chatlog}</b></li>
+            `);
+        });
+
+        $("#m").keydown(() => {
+          socket.emit("birileriyaziyor", nickim);
+        });
+        $("#m").keyup(() => {
+          socket.emit("birileriyaziyor", "");
+        });
+        socket.on("yaziyorlar", data => {
+          $("#durum").html(`
+            ${data}
+            `);
+        });
+      });
+    </script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
