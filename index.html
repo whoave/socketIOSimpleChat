@@ -20,38 +20,32 @@
       ul li:nth-child(2n) {
         background: rgb(231, 231, 231);
       }
+      .container {
+        height: 500px;
+      }
     </style>
   </head>
   <body>
+    <!-- m:input, messages:ul, online_sayisi:div  -->
     <div class="container">
-      <div class="row">
-        <div class="col-3">
-          <div id="online_sayisi"></div>
+      <div class="row h-100">
+        <div class="p-0 col-9 jumbotron mt-3 h-100 overflow-auto">
+          <ul class="p-3" id="messages"></ul>
         </div>
-        <div class="col-9" style="height:400px;position:relative !important;">
-          <ul
-            id="messages"
-            style="height:300px;overflow:auto;padding:0;margin:0;"
-          ></ul>
-
-          <form
-            class="form-group"
-            style="position:absolute;bottom:0px;"
-            action=""
-            autocomplete="off"
-          >
-            <input
-              type="text"
-              class="form-control w-100 p-3"
-              id="m"
-              style="width:830px !important;"
-            /><button class="btn btn-success">
-              Gönder
-            </button>
-          </form>
+        <div class="p-0 overflow-auto col-2 jumbotron mt-3 ml-1 h-100">
+          <ul id="online_sayisi"></ul>
         </div>
       </div>
     </div>
+    <nav class="navbar fixed-bottom  navbar-light bg-light">
+      <form action="" class="form-inline w-100" autocomplete="off">
+        <input type="text" class="form-control w-100" id="m" />
+        <button class="btn btn-success form-control mx-auto w-100">
+          Gönder
+        </button>
+      </form>
+    </nav>
+
     <!-- Aşağısı socket -->
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="/socket.io/socket.io.js"></script>
